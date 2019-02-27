@@ -4,6 +4,10 @@ button {
   border: none;
 }
 
+.like-btn {
+  z-index: 10;
+}
+
 body {
   background-color: #e6ecf0;
 }

@@ -51,7 +51,7 @@
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
               <form action="/messages/{{ msg.id  }}/like" method="POST">
-                <button type="submit">
+                <button class="like-btn" type="submit">
                   {% if msg.is_liked(g.user) %}
                     <i class="fas fa-heart"></i>
                   {% else %}
