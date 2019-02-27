@@ -77,7 +77,9 @@ class User(db.Model):
     followers = db.relationship(
         "User",
         secondary="follows",
+        # people following us (user.followers)
         primaryjoin=(FollowersFollowee.follower_id == id),
+        # people we are following (user.following)
         secondaryjoin=(FollowersFollowee.followee_id == id),
         backref="following")
 
