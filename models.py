@@ -169,6 +169,7 @@ class Message(db.Model):
         nullable=False,
     )
 
+    
     likes = db.relationship('Like',
         backref='liked_msgs',
         cascade="all, delete-orphan")
@@ -177,11 +178,13 @@ class Message(db.Model):
         secondary="likes",
         backref='liked_msgs')
 
-    def is_followed_by(self, other_user):
-        """Is this user followed by `other_user`?"""
+    def is_liked(self, user):
+        """Takes user instance and checks if the user has liked a message"""
 
-        found_user_list = [user for user in self.followers if user == other_user]
-        return len(found_user_list) == 1
+        if user in self.likers:
+            return True
+        else:
+            return False
 
 
 
@@ -193,6 +196,7 @@ class Like(db.Model):
     id = db.Column(
         db.Integer,
         primary_key=True,
+        autoincrement=True,
     )
 
     user_id = db.Column(
