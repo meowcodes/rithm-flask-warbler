@@ -39,6 +39,8 @@ def add_user_to_g():
     else:
         g.user = None
 
+    print("before request", g.user)
+
 
 def do_login(user):
     """Log in user."""
@@ -212,6 +214,11 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
+    # if not same user, deny access
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     form = UserEditForm(obj=g.user)
 
     if form.validate_on_submit():
@@ -226,7 +233,6 @@ def profile():
             user.header_image_url = form.header_image_url.data
             user.bio = form.bio.data
             db.session.commit()
-            flash(f"Hello, {user.username}!", "success")
             return redirect(f'/users/{g.user.id}')
         else:
             flash("Invalid credentials.", 'danger')
@@ -289,7 +295,10 @@ def messages_show(message_id):
 def messages_destroy(message_id):
     """Delete a message."""
 
-    if not g.user:
+    msg_author_id = Message.query.get(message_id).user_id
+
+    # if not msg author, deny access
+    if not g.user or g.user.id != msg_author_id:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
