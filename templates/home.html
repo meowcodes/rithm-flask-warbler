@@ -50,11 +50,15 @@
               <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
-              {% if msg.is_liked(g.user) %}
-                <i class="fas fa-heart"></i>
-              {% else %}
-                <i class="far fa-heart"></i>
-              {% endif %}
+              <form action="/messages/{{ msg.id  }}/like" method="POST">
+                <button type="submit">
+                  {% if msg.is_liked(g.user) %}
+                    <i class="fas fa-heart"></i>
+                  {% else %}
+                    <i class="far fa-heart"></i>
+                  {% endif %}
+                </button>
+              </form>
             </div>
           </li>
         {% endfor %}

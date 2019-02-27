@@ -1,5 +1,9 @@
 /* ====================== General */
 
+button {
+  border: none;
+}
+
 body {
   background-color: #e6ecf0;
 }

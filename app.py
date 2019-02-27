@@ -309,6 +309,27 @@ def messages_destroy(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
+@app.route('/messages/<int:msg_id>/like', methods=["POST"])
+def update_msg_like(msg_id):
+    """ like/unlike messages and redirect to user's likes """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    msg = Message.query.get(msg_id)
+
+    if msg.is_liked(g.user):
+        like = Like.query.filter_by(msg_id=msg_id,
+                                    user_id=g.user.id).first()
+        db.session.delete(like)
+    else: 
+        like = Like(msg_id=msg_id,
+                    user_id=g.user.id)
+        db.session.add(like)
+    db.session.commit()
+    return redirect(f'users/{g.user.id}/likes')
+
 ##############################################################################
 # Homepage and error pages
 
