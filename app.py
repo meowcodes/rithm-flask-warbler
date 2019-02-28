@@ -145,6 +145,8 @@ def users_show(user_id):
 
     user = User.query.get_or_404(user_id)
 
+    route = f'/users/{user_id}'
+
     # snagging messages in order from the database;
     # user.messages won't be in order by default
     messages = (Message
@@ -153,7 +155,7 @@ def users_show(user_id):
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    return render_template('users/show.html', user=user, messages=messages)
+    return render_template('users/show.html', user=user, messages=messages, route=route)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -184,6 +186,8 @@ def users_followers(user_id):
 def users_likes(user_id):
     """Show list of messages the user has liked."""
 
+    route = f'/users/{user_id}/likes'
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -191,7 +195,7 @@ def users_likes(user_id):
     user = User.query.get_or_404(user_id)
     liked_msgs = user.liked_msgs
 
-    return render_template('users/likes.html', user=user, messages=liked_msgs)
+    return render_template('users/likes.html', user=user, messages=liked_msgs, route=route)
 
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
@@ -301,8 +305,10 @@ def messages_add():
 def messages_show(message_id):
     """Show a message."""
 
+    route = f'/messages/{message_id}'
+
     msg = Message.query.get(message_id)
-    return render_template('messages/show.html', message=msg)
+    return render_template('messages/show.html', message=msg, route=route)
 
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
@@ -327,6 +333,8 @@ def messages_destroy(message_id):
 def update_msg_like(msg_id):
     """ like/unlike messages and redirect to user's likes """
 
+    route = request.form.get('route')
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -334,14 +342,14 @@ def update_msg_like(msg_id):
     msg = Message.query.get(msg_id)
 
     if msg.is_liked(g.user):
-        Like.query.filter_by(msg=msg, user=g.user).delete()
+        Like.query.filter_by(msg_id=msg_id, user_id=g.user.id).delete()
     else: 
         like = Like(msg_id=msg_id,
                     user_id=g.user.id)
         db.session.add(like)
 
     db.session.commit()
-    return redirect(f'/users/{g.user.id}/likes')
+    return redirect(f'{route}')
 
 ##############################################################################
 # Homepage and error pages
@@ -365,7 +373,7 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, route='/')
 
     else:
         return render_template('home-anon.html')

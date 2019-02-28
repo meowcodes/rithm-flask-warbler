@@ -54,6 +54,7 @@
               <!-- users can't like their own msgs -->
               {% if msg.author != g.user %}
               <form action="/messages/{{ msg.id  }}/like" method="POST">
+                <input type="hidden" value="{{ route }}" name="route">
                 <button class="like-btn" type="submit">
                   {% if msg.is_liked(g.user) %}
                     <i class="fas fa-heart"></i>

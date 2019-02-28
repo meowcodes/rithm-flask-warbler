@@ -36,8 +36,8 @@ gabriela = User(
 db.session.add(lena)
 db.session.add(gabriela)
 
-db.session.add(FollowersFollowee(followee_id=403, follower_id=401))
-db.session.add(FollowersFollowee(followee_id=401, follower_id=403))
+# db.session.add(FollowersFollowee(followee_id=403, follower_id=401))
+# db.session.add(FollowersFollowee(followee_id=401, follower_id=403))
 
 like1 = Like(user_id=100, msg_id=97)
 like2 = Like(user_id=72, msg_id=17)
