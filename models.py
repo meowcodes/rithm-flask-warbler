@@ -72,7 +72,7 @@ class User(db.Model):
         nullable=False,
     )
 
-    messages = db.relationship('Message', backref='user')
+    messages = db.relationship('Message', backref='author')
 
     likes = db.relationship('Like',
         backref='likers',
