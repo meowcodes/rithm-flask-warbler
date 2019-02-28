@@ -15,6 +15,8 @@
             <a href="/users/{{ message.author.id }}">@{{ message.author.username }}</a>
             <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
             <p>{{ message.text }}</p>
+
+            <!-- users can't like their own msgs -->
             {% if message.author != g.user %}
             <form action="/messages/{{ message.id  }}/like" method="POST">
               <button class="like-btn" type="submit">
@@ -26,6 +28,7 @@
               </button>
             </form>
             {% endif %}
+          
           </div>
         </li>
 

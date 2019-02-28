@@ -74,8 +74,9 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref='author')
 
-    likes = db.relationship('Like',
-        backref='likers',
+    likes = db.relationship(
+        'Like',
+        backref='liker',
         cascade="all, delete-orphan")
 
     followers = db.relationship(
@@ -169,35 +170,26 @@ class Message(db.Model):
         nullable=False,
     )
 
-    
-    likes = db.relationship('Like',
-        backref='liked_msgs',
+    likes = db.relationship(
+        'Like',
+        backref='liked_msg',
         cascade="all, delete-orphan")
 
-    likers = db.relationship('User',
+    likers = db.relationship(
+        'User',
         secondary="likes",
         backref='liked_msgs')
 
     def is_liked(self, user):
         """Takes user instance and checks if the user has liked a message"""
 
-        if user in self.likers:
-            return True
-        else:
-            return False
-
+        return user in self.likers
 
 
 class Like(db.Model):
     """Likes table."""
 
     __tablename__ = 'likes'
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        autoincrement=True,
-    )
 
     user_id = db.Column(
         db.Integer,
@@ -217,7 +209,6 @@ class Like(db.Model):
         default=datetime.utcnow()
     )
 
-    
 
 def connect_db(app):
     """Connect this database to provided Flask app.

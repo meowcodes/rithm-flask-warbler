@@ -334,13 +334,12 @@ def update_msg_like(msg_id):
     msg = Message.query.get(msg_id)
 
     if msg.is_liked(g.user):
-        like = Like.query.filter_by(msg_id=msg_id,
-                                    user_id=g.user.id).first()
-        db.session.delete(like)
+        Like.query.filter_by(msg=msg, user=g.user).delete()
     else: 
         like = Like(msg_id=msg_id,
                     user_id=g.user.id)
         db.session.add(like)
+
     db.session.commit()
     return redirect(f'/users/{g.user.id}/likes')
 
@@ -358,6 +357,7 @@ def homepage():
 
     if g.user:
         user_ids = [user.id for user in g.user.following]
+        user_ids.append(g.user.id)
         messages = (Message
                     .query
                     .filter(Message.user_id.in_(user_ids))
