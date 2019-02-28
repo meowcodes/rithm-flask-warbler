@@ -342,7 +342,7 @@ def update_msg_like(msg_id):
                     user_id=g.user.id)
         db.session.add(like)
     db.session.commit()
-    return redirect(f'users/{g.user.id}/likes')
+    return redirect(f'/users/{g.user.id}/likes')
 
 ##############################################################################
 # Homepage and error pages
