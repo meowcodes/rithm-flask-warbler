@@ -11,6 +11,10 @@
   outline: 0;
 }
 
+.show-msg-like {
+  display: inline-block;
+}
+
 body {
   background-color: #e6ecf0;
 }
