@@ -7,7 +7,7 @@
 
 import os
 from unittest import TestCase
-
+from sqlalchemy.exc import IntegrityError
 from models import db, User, Message, FollowersFollowee
 
 # BEFORE we import our app, let's set an environmental variable
@@ -16,7 +16,7 @@ from models import db, User, Message, FollowersFollowee
 # connected to the database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
-
+HASHED_PASSWORD = "$2b$12$sPCpn3/c7WAd623GKiGNWesVRaZCdTsQlBGBILA9QYsJHbpCFA5lW"
 # Now we can import app
 
 from app import app
@@ -38,50 +38,38 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         FollowersFollowee.query.delete()
 
+        u1 = User(
+            id=1000,
+            email="test@test.com",
+            username="testuser",
+            password=HASHED_PASSWORD
+        )
+
+        db.session.add(u1)
+        db.session.commit()
+
         self.client = app.test_client()
 
     def test_user_model(self):
         """Does basic model work?"""
 
-        u = User(
-            email="test@test.com",
-            username="testuser",
-            password="HASHED_PASSWORD"
-        )
-
-        db.session.add(u)
-        db.session.commit()
+        u1 = User.query.get(1000)
 
         # User should have no messages & no followers
-        self.assertEqual(len(u.messages), 0)
-        self.assertEqual(len(u.followers), 0)
+        self.assertEqual(len(u1.messages), 0)
+        self.assertEqual(len(u1.followers), 0)
 
-# Does the repr method work as expected?
 
     def test_repr(self):
         """ Does the repr work as intended? """
+        u1 = User.query.get(1000)
 
-        u = User(
-            id=1000,
-            email="test@test.com",
-            username="testuser",
-            password="HASHED_PASSWORD"
-        )
+        self.assertEqual(str(u1), "<User #1000: testuser, test@test.com>")
 
-        self.assertEqual(str(u), "<User #1000: testuser, test@test.com>")
-        
-# Does is_following successfully detect when user1 is following user2?
-# Does is_following successfully detect when user1 is not following user2?
 
     def test_is_following(self):
-        """ Does is_following successfully detect when user1 is following user2 and when user2 is not following user1 """
-
-        u1 = User(
-            id=1000,
-            email="test@test.com",
-            username="testuser",
-            password="HASHED_PASSWORD"
-        )
+        """ Does is_following successfully detect when user1 is following user2 and when user2 is not following user1? """
+        u1 = User.query.get(1000)
 
         u2 = User(
             id=2000,
@@ -90,7 +78,7 @@ class UserModelTestCase(TestCase):
             password="HASHED_PASSWORD"
         )
 
-        db.session.add(u1)
+        # db.session.add(u1)
         db.session.add(u2)
         db.session.commit()
 
@@ -102,18 +90,10 @@ class UserModelTestCase(TestCase):
         self.assertTrue(u1.is_following(u2))
         self.assertFalse(u2.is_following(u1))
 
-# Does is_followed_by successfully detect when user1 is followed by user2?
-# Does is_followed_by successfully detect when user1 is not followed by user2?
 
     def test_is_followed_by(self):
-        """ Does is_followed_by successfully detect when user1 is followed by user2 and when user2 is not followed by user1 """
-
-        u1 = User(
-            id=1000,
-            email="test@test.com",
-            username="testuser",
-            password="HASHED_PASSWORD"
-        )
+        """ Does is_followed_by successfully detect when user1 is followed by user2 and when user2 is not followed by user1? """
+        u1 = User.query.get(1000)
 
         u2 = User(
             id=2000,
@@ -122,7 +102,6 @@ class UserModelTestCase(TestCase):
             password="HASHED_PASSWORD"
         )
 
-        db.session.add(u1)
         db.session.add(u2)
         db.session.commit()
 
@@ -133,9 +112,54 @@ class UserModelTestCase(TestCase):
 
         self.assertTrue(u1.is_followed_by(u2))
         self.assertFalse(u2.is_followed_by(u1))
-        
-# Does User.create successfully create a new user given valid credentials?
-# Does User.create fail to create a new user if any of the validations (e.g. uniqueness, non-nullable fields) fail?
-# Does User.authenticate successfully return a user when given a valid username and password?
-# Does User.authenticate fail to return a user when the username is invalid?
-# Does User.authenticate fail to return a user when the password is invalid?
+
+
+    def test_user_create(self):
+        """ Does User.create successfully create a new user given valid credentials and fail if validations fail? """
+        u1 = User.query.get(1000)
+        self.assertIs(User.query.get(1000), u1)
+
+        # same email
+        u2 = User(
+            id=2000,
+            email="test@test.com",
+            username="testuser2",
+            password="HASHED_PASSWORD"
+        )
+
+        # same username
+        u3 = User(
+            id=3000,
+            email="test2@test.com",
+            username="testuser",
+            password="HASHED_PASSWORD"
+        )
+
+        # no password
+        u4 = User(
+            id=4000,
+            email="test2@test.com",
+            username="testuser"
+        )
+
+        db.session.add(u2)
+        self.assertRaises(IntegrityError, db.session.commit)
+        db.session.rollback()
+
+        db.session.add(u3)
+        self.assertRaises(IntegrityError, db.session.commit)
+        db.session.rollback()
+
+        db.session.add(u4)
+        self.assertRaises(IntegrityError, db.session.commit)
+        db.session.rollback()
+
+
+    def test_user_auth(self):
+        """ Does User.authenticate successfully return a user when given a valid username and password and fail if username/password are invalid? """
+
+        u1 = User.query.get(1000)
+
+        self.assertIs(User.authenticate(username="testuser", password="123456"), u1)
+        self.assertFalse(User.authenticate(username="testuser2", password="123456"))
+        self.assertFalse(User.authenticate(username="testuser", password="12345"))        
