@@ -187,10 +187,11 @@ def users_likes(user_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
-    liked_msgs = g.user.liked_msgs
 
-    return render_template('users/followers.html', messages=liked_msgs)
+    user = User.query.get_or_404(user_id)
+    liked_msgs = user.liked_msgs
+
+    return render_template('users/likes.html', user=user, messages=liked_msgs)
 
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
