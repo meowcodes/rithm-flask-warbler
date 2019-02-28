@@ -4,7 +4,7 @@
     <ul class="list-group" id="messages">
 
       {% for message in messages %}
-
+<!-- CHANGE USER TO AUTHOR -->
         <li class="list-group-item">
           <a href="/messages/{{ message.id }}" class="message-link"/>
 
@@ -16,6 +16,15 @@
             <a href="/users/{{ user.id }}">@{{ user.username }}</a>
             <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
             <p>{{ message.text }}</p>
+            <form action="/messages/{{ message.id  }}/like" method="POST">
+              <button class="like-btn" type="submit">
+                {% if message.is_liked(user) %}
+                  <i class="fas fa-heart"></i>
+                {% else %}
+                  <i class="far fa-heart"></i>
+                {% endif %}
+              </button>
+            </form>
           </div>
         </li>
 
