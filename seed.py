@@ -17,6 +17,12 @@ with open('generator/messages.csv') as messages:
 with open('generator/follows.csv') as follows:
     db.session.bulk_insert_mappings(FollowersFollowee, DictReader(follows))
 
+lena = User(
+    username="meow",
+    password="$2b$12$sPCpn3/c7WAd623GKiGNWesVRaZCdTsQlBGBILA9QYsJHbpCFA5lW",
+    image_url="https://static.boredpanda.com/blog/wp-content/uploads/2016/08/Cute-kittens-46-57b323088a692__605.jpg",
+    email="meow@email.com")
+
 like1 = Like(user_id=100, msg_id=97)
 like2 = Like(user_id=72, msg_id=17)
 like3 = Like(user_id=193, msg_id=97)
