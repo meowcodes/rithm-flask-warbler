@@ -24,7 +24,17 @@ lena = User(
     email="meow@email.com",
     id=304)
 
-db.session.add(FollowersFollowee(followee_id=72, follower_id=304))
+gabriela = User(
+    username="satan",
+    password="$2b$12$evlyorusVLeASmpmCTYyb.7ADy7oh9BEyVqjQLz67XFUpNuFMAQVO",
+    image_url="https://previews.123rf.com/images/hermandesign2015/hermandesign20151709/hermandesign2015170900004/85861572-red-devil-head-cartoon.jpg",
+    email="hahaha@gmail.com",
+    id=301
+)
+
+
+db.session.add(FollowersFollowee(followee_id=301, follower_id=304))
+db.session.add(FollowersFollowee(followee_id=304, follower_id=301))
 
 like1 = Like(user_id=100, msg_id=97)
 like2 = Like(user_id=72, msg_id=17)
