@@ -38,14 +38,14 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         FollowersFollowee.query.delete()
 
-        u1 = User(
+        self.u1 = User(
             id=1000,
             email="test@test.com",
             username="testuser",
             password=HASHED_PASSWORD
         )
 
-        db.session.add(u1)
+        db.session.add(self.u1)
         db.session.commit()
 
         self.client = app.test_client()
@@ -53,23 +53,19 @@ class UserModelTestCase(TestCase):
     def test_user_model(self):
         """Does basic model work?"""
 
-        u1 = User.query.get(1000)
-
         # User should have no messages & no followers
-        self.assertEqual(len(u1.messages), 0)
-        self.assertEqual(len(u1.followers), 0)
+        self.assertEqual(len(self.u1.messages), 0)
+        self.assertEqual(len(self.u1.followers), 0)
 
 
     def test_repr(self):
         """ Does the repr work as intended? """
-        u1 = User.query.get(1000)
 
-        self.assertEqual(str(u1), "<User #1000: testuser, test@test.com>")
+        self.assertEqual(str(self.u1), "<User #1000: testuser, test@test.com>")
 
 
     def test_is_following(self):
         """ Does is_following successfully detect when user1 is following user2 and when user2 is not following user1? """
-        u1 = User.query.get(1000)
 
         u2 = User(
             id=2000,
@@ -78,7 +74,6 @@ class UserModelTestCase(TestCase):
             password="HASHED_PASSWORD"
         )
 
-        # db.session.add(u1)
         db.session.add(u2)
         db.session.commit()
 
@@ -87,13 +82,12 @@ class UserModelTestCase(TestCase):
         db.session.add(f)
         db.session.commit()
 
-        self.assertTrue(u1.is_following(u2))
-        self.assertFalse(u2.is_following(u1))
+        self.assertTrue(self.u1.is_following(u2))
+        self.assertFalse(u2.is_following(self.u1))
 
 
     def test_is_followed_by(self):
         """ Does is_followed_by successfully detect when user1 is followed by user2 and when user2 is not followed by user1? """
-        u1 = User.query.get(1000)
 
         u2 = User(
             id=2000,
@@ -110,14 +104,13 @@ class UserModelTestCase(TestCase):
         db.session.add(f)
         db.session.commit()
 
-        self.assertTrue(u1.is_followed_by(u2))
-        self.assertFalse(u2.is_followed_by(u1))
+        self.assertTrue(self.u1.is_followed_by(u2))
+        self.assertFalse(u2.is_followed_by(self.u1))
 
 
     def test_user_create(self):
         """ Does User.create successfully create a new user given valid credentials and fail if validations fail? """
-        u1 = User.query.get(1000)
-        self.assertIs(User.query.get(1000), u1)
+        self.assertIs(User.query.get(1000), self.u1)
 
         # same email
         u2 = User(
@@ -158,8 +151,7 @@ class UserModelTestCase(TestCase):
     def test_user_auth(self):
         """ Does User.authenticate successfully return a user when given a valid username and password and fail if username/password are invalid? """
 
-        u1 = User.query.get(1000)
 
-        self.assertIs(User.authenticate(username="testuser", password="123456"), u1)
+        self.assertIs(User.authenticate(username="testuser", password="123456"), self.u1)
         self.assertFalse(User.authenticate(username="testuser2", password="123456"))
         self.assertFalse(User.authenticate(username="testuser", password="12345"))        
