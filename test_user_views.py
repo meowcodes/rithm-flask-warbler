@@ -6,6 +6,7 @@
 
 
 import os
+from flask import session
 from unittest import TestCase
 
 from models import db, connect_db, User, Message
@@ -33,8 +34,8 @@ db.create_all()
 app.config['WTF_CSRF_ENABLED'] = False
 
 
-class MessageViewTestCase(TestCase):
-    """Test views for messages."""
+class UserViewTestCase(TestCase):
+    """Test views for user."""
 
     def setUp(self):
         """Create test client, add sample data."""
@@ -49,25 +50,61 @@ class MessageViewTestCase(TestCase):
                                     password="testuser",
                                     image_url=None)
 
+        db.session.add(self.testuser)
         db.session.commit()
 
-    def test_add_message(self):
-        """Can use add a message?"""
+    def test_signup_route(self):
+        """Can you add a user?"""
 
-        # Since we need to change the session to mimic logging in,
-        # we need to use the changing-session trick:
+        # can you see the sign in page?
+        get_resp = self.client.get("/signup")
 
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess[CURR_USER_KEY] = self.testuser.id
+        self.assertEqual(get_resp.status_code, 200)
+        # find form action and id for signup form
+        self.assertIn(b'form method="POST" id="user_form"', get_resp.data)
 
-            # Now, that session setting is saved, so we can have
-            # the rest of ours test
+        # can you make a user?
+        post_resp = self.client.post(
+            "/signup",
+            data={"username": "testuser2",
+                "email": "test2@test.com",
+                "password": "123456",
+                "image_url": ""},
+            follow_redirects=True)
 
-            resp = c.post("/messages/new", data={"text": "Hello"})
+        # redirects to 200 resp
+        self.assertEqual(post_resp.status_code, 200)
+        # user info is shown
+        self.assertIn(b'alt="Image for testuser2"', post_resp.data)
+    
+    def test_login_route(self):
+        """ Can you log in? """
 
-            # Make sure it redirects
-            self.assertEqual(resp.status_code, 302)
+        # can you see the login page?
+        get_resp = self.client.get("/login")
 
-            msg = Message.query.one()
-            self.assertEqual(msg.text, "Hello")
+        self.assertEqual(get_resp.status_code, 200)
+        # find form action and id for signup form
+        self.assertIn(b'form method="POST" id="user_form"', get_resp.data)
+
+        # can you login?
+        post_resp = self.client.post(
+            "/login",
+            data={"username": "testuser",
+                  "password": "testuser"},
+            follow_redirects=True)
+
+        # redirects to 200 resp
+        self.assertEqual(post_resp.status_code, 200)
+        # user info is shown
+        self.assertIn(b'alt="Image for testuser"', post_resp.data)
+        
+    def test_log_out(self):
+        """ Can you logout? """
+
+        # can you log out?
+        resp = self.client.get("/logout", follow_redirects=True)
+
+        self.assertEqual(resp.status_code, 200)
+        # gets correct flash msg
+        self.assertIn(b'Log out successful!', resp.data)
