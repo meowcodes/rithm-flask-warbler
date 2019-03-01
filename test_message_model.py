@@ -57,7 +57,7 @@ class UserModelTestCase(TestCase):
 
         db.session.commit()
 
-        self.client = app.test_client()
+        # self.client = app.test_client()
 
     def test_message_model(self):
         """Does basic message model work?"""
