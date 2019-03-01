@@ -71,3 +71,26 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_show_message(self):
+        """Can a user view a message?"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            test_user = User.query.filter_by(username="testuser").first()
+
+            testmsg = Message(text="TESTINGGG",
+                              user_id=test_user.id)
+
+            db.session.add(testmsg)
+            db.session.commit()
+
+            test_msg = Message.query.filter_by(text="TESTINGGG").first()
+
+            resp = c.get(f"/messages/{test_msg.id}")
+
+            # Make sure it redirects
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(b"TESTINGGG", resp.data)
