@@ -180,6 +180,9 @@ class Message(db.Model):
         secondary="likes",
         backref='liked_msgs')
 
+    def __repr__(self):
+        return f"<Message #{self.id}: authored by {self.user_id}>"
+
     def is_liked(self, user):
         """Takes user instance and checks if the user has liked a message"""
 
