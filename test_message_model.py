@@ -39,21 +39,21 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         User.query.delete()
 
-        u1 = User(
+        self.u1 = User(
             id=1000,
             email="test@test.com",
             username="testuser",
             password=HASHED_PASSWORD
         )
 
-        m1 = Message(
+        self.m1 = Message(
            id=1000001,
            text=LOREM_IPSUM_REG,
            user_id=1000
         )
 
-        db.session.add(u1)
-        db.session.add(m1)
+        db.session.add(self.u1)
+        db.session.add(self.m1)
 
         db.session.commit()
 
@@ -70,27 +70,22 @@ class UserModelTestCase(TestCase):
 
         db.session.add(m20)
         db.session.commit()
-        m1 = Message.query.get(1000001)
         m10 = Message.query.get(1000020)
 
-        self.assertEqual(m1.user_id, 1000)
-        self.assertIsInstance(m1.timestamp, datetime)
+        self.assertEqual(self.m1.user_id, 1000)
+        self.assertIsInstance(self.m1.timestamp, datetime)
         self.assertIs(m20, m10)
 
 
     def test_repr(self):
         """ Does the repr work as intended? """
 
-        m1 = Message.query.get(1000001)
-
-        self.assertEqual(str(m1), "<Message #1000001: authored by 1000>")
+        self.assertEqual(str(self.m1), "<Message #1000001: authored by 1000>")
 
 
     def test_is_liked(self):
         """ Does is_liked successfully detect when a user has liked a message? """
 
-        m1 = Message.query.get(1000001)
-        u1 = User.query.get(1000)
 
         l1 = Like(user_id=1000,
                   msg_id=1000001)
@@ -108,8 +103,8 @@ class UserModelTestCase(TestCase):
         db.session.add(u2)
         db.session.commit()
 
-        self.assertTrue(m1.is_liked(u1))
-        self.assertFalse(m1.is_liked(u2))
+        self.assertTrue(self.m1.is_liked(self.u1))
+        self.assertFalse(self.m1.is_liked(u2))
 
     def test_likes_relationship(self):
         """ tests if the likes relationship is functional """
@@ -120,19 +115,14 @@ class UserModelTestCase(TestCase):
         db.session.add(l1)
         db.session.commit()
 
-        m1 = Message.query.get(1000001)
 
-        self.assertEqual(m1.likes, [l1])
-
-        
+        self.assertEqual(self.m1.likes, [l1])
 
 
     def test_author_relationship(self):
         """ Does message.author find the correct instance of user? """
-        m1 = Message.query.get(1000001)
-        u1 = User.query.get(1000)
 
-        self.assertIs(m1.author, u1)
+        self.assertIs(self.m1.author, self.u1)
 
     def test_message_create(self):
         """ Does the model successfully create new messages that follow the constraints? """
