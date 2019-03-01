@@ -12,7 +12,7 @@
 
 import os
 from unittest import TestCase
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 from datetime import datetime
 from models import db, User, Message, FollowersFollowee, Like
 
@@ -111,36 +111,30 @@ class UserModelTestCase(TestCase):
 
         self.assertIs(m1.author, u1)
 
-    def test_likers_relationship(self):
-        """ Does message.likers find all instances of users who have liked the message? """
+    def test_message_create(self):
+        """ Does the model successfully create new messages that follow the constraints? """
 
-        m1 = Message.query.get(1000001)
-        u1 = User.query.get(1000)
-
-        u2 = User(
-            id=2000,
-            email="test2@test.com",
-            username="testuser2",
-            password="HASHED_PASSWORD"
+        # txt too long
+        m2 = Message(
+           id=1000002,
+           text=LOREM_IPSUM_LONG,
+           user_id=1000
         )
 
-        db.session.add(u2)
-        db.session.commit()
+        # no text
+        m3 = Message(
+           id=1000003,
+           user_id=1000
+        )
 
-        l1 = Like(user_id=1000,
-                  msg_id=1000001)
+        db.session.add(m2)
+        self.assertRaises(DataError, db.session.commit)
+        db.session.rollback()
 
-        l2 = Like(user_id=2000,
-                  msg_id=1000001)
+        db.session.add(m3)
+        self.assertRaises(IntegrityError, db.session.commit)
+        db.session.rollback()
 
-        db.session.add(l1)
-        db.session.add(l2)
-        db.session.commit()
-
-        self.assertEqual(m1.likers, [u1, u2])
-
-    # def test_is_followed_by(self):
-    #     """ Does is_followed_by successfully detect when user1 is followed by user2 and when user2 is not followed by user1? """
     #     m1 = Message.query.get(1000001)
 
     #     u2 = User(
