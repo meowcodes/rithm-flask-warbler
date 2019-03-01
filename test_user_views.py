@@ -45,10 +45,11 @@ class UserViewTestCase(TestCase):
 
         self.client = app.test_client()
 
-        self.testuser = User.signup(username="testuser",
-                                    email="test@test.com",
-                                    password="testuser",
-                                    image_url=None)
+        self.testuser = User.signup(
+            username="testuser",
+            email="test@test.com",
+            password="testuser",
+            image_url=None)
 
         db.session.add(self.testuser)
         db.session.commit()
@@ -66,7 +67,8 @@ class UserViewTestCase(TestCase):
         # can you make a user?
         post_resp = self.client.post(
             "/signup",
-            data={"username": "testuser2",
+            data={
+                "username": "testuser2",
                 "email": "test2@test.com",
                 "password": "123456",
                 "image_url": ""},
