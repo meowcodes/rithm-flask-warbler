@@ -1,4 +1,3 @@
-# test messages are being created
 # Test likes relaSHAWNSHAIP
 
 """Message model tests."""
@@ -68,7 +67,7 @@ class UserModelTestCase(TestCase):
            text=LOREM_IPSUM_REG,
            user_id=1000
         )
-        
+
         db.session.add(m20)
         db.session.commit()
         m1 = Message.query.get(1000001)
@@ -111,6 +110,22 @@ class UserModelTestCase(TestCase):
 
         self.assertTrue(m1.is_liked(u1))
         self.assertFalse(m1.is_liked(u2))
+
+    def test_likes_relationship(self):
+        """ tests if the likes relationship is functional """
+
+        l1 = Like(user_id=1000,
+                  msg_id=1000001)
+
+        db.session.add(l1)
+        db.session.commit()
+
+        m1 = Message.query.get(1000001)
+
+        self.assertEqual(m1.likes, [l1])
+
+        
+
 
     def test_author_relationship(self):
         """ Does message.author find the correct instance of user? """
