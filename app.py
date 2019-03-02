@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-# toolbar = DebugToolbarExtension(app)
+toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
@@ -54,7 +54,6 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
-
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
@@ -79,7 +78,7 @@ def signup():
             )
             db.session.commit()
 
-        except IntegrityError as e:
+        except IntegrityError:
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
@@ -165,7 +164,7 @@ def show_following(user_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
+    
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
 

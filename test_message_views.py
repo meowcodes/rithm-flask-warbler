@@ -7,7 +7,7 @@
 
 import os
 from unittest import TestCase
-
+# from sqlalchemy.orm.exc import DetachedInstanceError
 from models import db, connect_db, Message, User
 
 # BEFORE we import our app, let's set an environmental variable
@@ -94,3 +94,44 @@ class MessageViewTestCase(TestCase):
             # Make sure it redirects
             self.assertEqual(resp.status_code, 200)
             self.assertIn(b"TESTINGGG", resp.data)
+
+    # def test_destroy_message(self):
+    #     """Can a user destroy a message?"""
+
+    #     test_user = User.query.filter_by(username="testuser").first()
+
+    #     testmsg = Message(text="TESTINGGG",
+    #                       user_id=test_user.id)
+
+    #     db.session.add(testmsg)
+    #     db.session.commit()
+
+    #     test_msg = Message.query.filter_by(text="TESTINGGG").first()
+
+    #     # Test that a user can't delete other user's messages
+    #     with self.client as c:
+    #         with c.session_transaction() as sess:
+    #             sess[CURR_USER_KEY] = 2149878326481
+
+
+    #         # resp = c.post(f"/messages/{test_msg.id}/delete",
+    #         #               follow_redirects=True)
+
+    #         # # Make sure it redirects
+    #         # self.assertEqual(resp.status_code, 200)
+
+    #         self.assertRaises(DetachedInstanceError, c.post, 
+    #                           f"/messages/{test_msg.id}/delete")
+
+    #     # Check that a user can delete their own messages
+    #     with self.client as c:
+    #         with c.session_transaction() as sess:
+    #             sess[CURR_USER_KEY] = self.testuser.id
+
+    #         resp = c.post(f"/messages/{test_msg.id}/delete",
+    #                       follow_redirects=True)
+
+    #         # Make sure it redirects
+    #         self.assertEqual(resp.status_code, 200)
+    #         self.assertIn(b'alt="Image for testuser"', resp.data)
+            
